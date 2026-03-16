@@ -1,0 +1,145 @@
+### Sample API Requests for Automated Academic Process Validator
+
+### Register Users
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "password": "AdminPass123!",
+  "role": "admin"
+}
+
+###
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Faculty User",
+  "email": "faculty@example.com",
+  "password": "FacultyPass123!",
+  "role": "faculty"
+}
+
+###
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Student User",
+  "email": "student@example.com",
+  "password": "StudentPass123!",
+  "role": "student"
+}
+
+### Login (example for admin, token used in Authorization header)
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "AdminPass123!"
+}
+
+### Create Academic Rule (Admin)
+POST http://localhost:5000/api/rules
+Authorization: Bearer {{ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "name": "Default Eligibility Rule Set",
+  "description": "Standard eligibility for semester exams",
+  "attendanceRule": {
+    "enabled": true,
+    "minPercentage": 75
+  },
+  "subjectRule": {
+    "enabled": true,
+    "minMarksPerSubject": 40
+  },
+  "creditRule": {
+    "enabled": true,
+    "minTotalCredits": 20
+  },
+  "prerequisiteRule": {
+    "enabled": true,
+    "requiredSubjects": ["MATH101", "CS101"]
+  },
+  "isActive": true
+}
+
+### Upsert Student Academic Record (Faculty)
+POST http://localhost:5000/api/students
+Authorization: Bearer {{FACULTY_TOKEN}}
+Content-Type: application/json
+
+{
+  "studentUserId": "{{STUDENT_USER_ID}}",
+  "studentId": "STU-001",
+  "attendancePercentage": 80,
+  "totalCredits": 22,
+  "subjects": [
+    {
+      "code": "MATH101",
+      "name": "Calculus I",
+      "marks": 65,
+      "credits": 4,
+      "completed": true
+    },
+    {
+      "code": "CS101",
+      "name": "Introduction to Programming",
+      "marks": 72,
+      "credits": 4,
+      "completed": true
+    },
+    {
+      "code": "ENG101",
+      "name": "English",
+      "marks": 55,
+      "credits": 3,
+      "completed": true
+    }
+  ]
+}
+
+### Trigger Validation (Faculty/Admin)
+POST http://localhost:5000/api/validate
+Authorization: Bearer {{FACULTY_OR_ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "studentUserId": "{{STUDENT_USER_ID}}",
+  "ruleId": "{{RULE_ID}}"
+}
+
+### Example Successful Validation Response
+###
+# {
+#   "validation": {
+#     "status": "VALID",
+#     "failures": []
+#   },
+#   "log": {
+#     "_id": "664000000000000000000001",
+#     "studentUser": "663f00000000000000000001",
+#     "studentId": "STU-001",
+#     "rule": "663f00000000000000000010",
+#     "result": "VALID",
+#     "failures": [],
+#     "validator": "663f00000000000000000020",
+#     "createdAt": "2026-02-10T10:00:00.000Z",
+#     "updatedAt": "2026-02-10T10:00:00.000Z",
+#     "__v": 0
+#   }
+# }
+
+### Student View Own Validation Logs
+GET http://localhost:5000/api/logs/me
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+### Admin View All Logs
+GET http://localhost:5000/api/logs
+Authorization: Bearer {{ADMIN_TOKEN}}
+
