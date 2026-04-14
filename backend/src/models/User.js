@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true },
     role: { type: String, enum: ROLES, required: true },
+    roleId: { type: String, trim: true },
     studentId: { type: String, trim: true }
   },
   { timestamps: true }

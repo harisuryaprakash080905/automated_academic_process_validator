@@ -45,6 +45,6 @@ export async function listStudentRecords() {
 }
 
 export async function listStudentUsers() {
-  return User.find({ role: "student" }).select("_id name email studentId").sort({ name: 1 });
+  return User.find({ role: "student" }).select("_id name email studentId roleId").sort({ name: 1 });
 }
 

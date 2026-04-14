@@ -9,6 +9,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
+  const [roleId, setRoleId] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -17,7 +18,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      await register({ name, email, password, role });
+      await register({ name, email, password, role, roleId });
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -27,7 +28,6 @@ export default function Register() {
   };
 
   const roles = [
-    { value: "admin", label: "Admin", icon: "🛡️", desc: "Manage rules & users" },
     { value: "faculty", label: "Faculty", icon: "🎓", desc: "Validate students" },
     { value: "student", label: "Student", icon: "📚", desc: "View your profile" },
   ];
@@ -98,7 +98,7 @@ export default function Register() {
               <label className="mb-2 block text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 Role
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {roles.map((r) => (
                   <button
                     key={r.value}
@@ -118,6 +118,19 @@ export default function Register() {
                   </button>
                 ))}
               </div>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Role ID
+              </label>
+              <input
+                type="text"
+                className="input"
+                placeholder="Enter your role ID"
+                value={roleId}
+                onChange={(e) => setRoleId(e.target.value)}
+                required
+              />
             </div>
             <button type="submit" className="btn-primary w-full" disabled={loading}>
               {loading ? (

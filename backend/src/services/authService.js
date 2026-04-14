@@ -1,7 +1,7 @@
 import { User, USER_ROLES } from "../models/User.js";
 import { generateToken } from "../utils/generateToken.js";
 
-export async function registerUser({ name, email, password, role }) {
+export async function registerUser({ name, email, password, role, roleId }) {
   if (!USER_ROLES.includes(role)) {
     throw new Error("Invalid role");
   }
@@ -11,7 +11,7 @@ export async function registerUser({ name, email, password, role }) {
     throw new Error("User already exists");
   }
 
-  const user = await User.create({ name, email, password, role });
+  const user = await User.create({ name, email, password, role, roleId });
 
   const token = generateToken(user);
   return {
@@ -19,7 +19,8 @@ export async function registerUser({ name, email, password, role }) {
       id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      roleId: user.roleId
     },
     token
   };
@@ -42,7 +43,8 @@ export async function loginUser({ email, password }) {
       id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      roleId: user.roleId
     },
     token
   };

@@ -104,55 +104,57 @@ export default function StudentDashboard() {
         </div>
 
         {/* ── Validation history ── */}
-        <div className="card max-h-[500px] overflow-auto p-6">
-          <h3 className="mb-4 text-sm font-bold text-slate-800 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-500"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            Validation History
-          </h3>
-          {logs.length === 0 && (
-            <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
-              <p className="text-sm text-slate-400">No automated validations have been run for your profile yet.</p>
-            </div>
-          )}
-          {logs.length > 0 && (
-            <ul className="space-y-3">
-              {logs.map((log) => (
-                <li key={log._id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition-all hover:border-slate-300 animate-fade-in">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Rule: <span className="font-semibold text-slate-800">{log.rule?.name}</span>
-                    </span>
-                    {log.result === "VALID" ? (
-                      <span className="badge-success">{log.result}</span>
-                    ) : (
-                      <span className="badge-danger">{log.result}</span>
-                    )}
-                  </div>
-                  <p className="mb-2 text-[11px] text-slate-400">
-                    {new Date(log.createdAt).toLocaleString()}
-                  </p>
-                  {log.failures && log.failures.length > 0 && (
-                    <div className="rounded-lg border border-red-100 bg-red-50/60 p-3">
-                      <p className="mb-1.5 text-[11px] font-bold text-red-600">Reasons for ineligibility</p>
-                      <ul className="space-y-1">
-                        {log.failures.map((f, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-xs text-red-600">
-                            <span className="mt-1 dot-danger flex-shrink-0" />
-                            <span>{f.message}</span>
-                          </li>
-                        ))}
-                      </ul>
+        <div className="card p-0">
+          <div className="max-h-[500px] overflow-y-auto p-6">
+            <h3 className="mb-4 text-sm font-bold text-slate-800 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-500"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Validation History
+            </h3>
+            {logs.length === 0 && (
+              <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
+                <p className="text-sm text-slate-400">No automated validations have been run for your profile yet.</p>
+              </div>
+            )}
+            {logs.length > 0 && (
+              <ul className="space-y-3">
+                {logs.map((log) => (
+                  <li key={log._id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition-all hover:border-slate-300 animate-fade-in">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs text-slate-500">
+                        Rule: <span className="font-semibold text-slate-800">{log.rule?.name}</span>
+                      </span>
+                      {log.result === "VALID" ? (
+                        <span className="badge-success">{log.result}</span>
+                      ) : (
+                        <span className="badge-danger">{log.result}</span>
+                      )}
                     </div>
-                  )}
-                  {(!log.failures || log.failures.length === 0) && (
-                    <p className="text-xs text-emerald-600 font-medium">
-                      ✅ All active academic rules were satisfied.
+                    <p className="mb-2 text-[11px] text-slate-400">
+                      {new Date(log.createdAt).toLocaleString()}
                     </p>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+                    {log.failures && log.failures.length > 0 && (
+                      <div className="rounded-lg border border-red-100 bg-red-50/60 p-3">
+                        <p className="mb-1.5 text-[11px] font-bold text-red-600">Reasons for ineligibility</p>
+                        <ul className="space-y-1">
+                          {log.failures.map((f, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-xs text-red-600">
+                              <span className="mt-1 dot-danger flex-shrink-0" />
+                              <span>{f.message}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {(!log.failures || log.failures.length === 0) && (
+                      <p className="text-xs text-emerald-600 font-medium">
+                        ✅ All active academic rules were satisfied.
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

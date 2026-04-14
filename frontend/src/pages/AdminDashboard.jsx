@@ -355,54 +355,56 @@ export default function AdminDashboard() {
         <p className="mb-5 text-sm text-slate-500">
           Every validation attempt is captured with rules, outcome, and validator info.
         </p>
-        <div className="card max-h-[400px] overflow-auto p-0">
-          {logs.length === 0 && (
-            <div className="p-8 text-center">
-              <p className="text-sm text-slate-400">No validation activity recorded yet.</p>
-            </div>
-          )}
-          {logs.length > 0 && (
-            <table className="table-modern">
-              <thead className="sticky top-0">
-                <tr>
-                  <th>Student</th>
-                  <th>Rule</th>
-                  <th>Result</th>
-                  <th>Validator</th>
-                  <th>Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log._id}>
-                    <td>
-                      <div>
-                        <p className="font-medium text-slate-800">{log.studentUser?.name}</p>
-                        <p className="text-[11px] text-slate-400">{log.studentId}</p>
-                      </div>
-                    </td>
-                    <td className="text-slate-600">{log.rule?.name}</td>
-                    <td>
-                      {log.result === "VALID" ? (
-                        <span className="badge-success">{log.result}</span>
-                      ) : (
-                        <span className="badge-danger">{log.result}</span>
-                      )}
-                    </td>
-                    <td>
-                      <div>
-                        <p className="font-medium text-slate-800">{log.validator?.name}</p>
-                        <p className="text-[11px] text-slate-400 uppercase">{log.validator?.role}</p>
-                      </div>
-                    </td>
-                    <td className="text-xs text-slate-400">
-                      {new Date(log.createdAt).toLocaleString()}
-                    </td>
+        <div className="card p-0">
+          <div className="max-h-[400px] overflow-y-auto">
+            {logs.length === 0 && (
+              <div className="p-8 text-center">
+                <p className="text-sm text-slate-400">No validation activity recorded yet.</p>
+              </div>
+            )}
+            {logs.length > 0 && (
+              <table className="table-modern">
+                <thead className="sticky top-0 z-10">
+                  <tr>
+                    <th>Student</th>
+                    <th>Rule</th>
+                    <th>Result</th>
+                    <th>Validator</th>
+                    <th>Timestamp</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {logs.map((log) => (
+                    <tr key={log._id}>
+                      <td>
+                        <div>
+                          <p className="font-medium text-slate-800">{log.studentUser?.name}</p>
+                          <p className="text-[11px] text-slate-400">{log.studentId}</p>
+                        </div>
+                      </td>
+                      <td className="text-slate-600">{log.rule?.name}</td>
+                      <td>
+                        {log.result === "VALID" ? (
+                          <span className="badge-success">{log.result}</span>
+                        ) : (
+                          <span className="badge-danger">{log.result}</span>
+                        )}
+                      </td>
+                      <td>
+                        <div>
+                          <p className="font-medium text-slate-800">{log.validator?.name}</p>
+                          <p className="text-[11px] text-slate-400 uppercase">{log.validator?.role}</p>
+                        </div>
+                      </td>
+                      <td className="text-xs text-slate-400">
+                        {new Date(log.createdAt).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       </section>
     </div>

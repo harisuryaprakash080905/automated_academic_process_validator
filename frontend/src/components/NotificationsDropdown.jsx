@@ -107,13 +107,12 @@ export default function NotificationsDropdown() {
               notifications.map((notif) => (
                 <div
                   key={notif._id}
-                  className={`relative border-b border-slate-100 px-4 py-3 transition-all duration-150 cursor-pointer ${
-                    notif.isRead
-                      ? "bg-white opacity-70 hover:opacity-100"
-                      : "bg-primary-50/30 hover:bg-primary-50/50"
-                  }`}
+                  className={`relative border-b border-slate-100 px-4 py-3 transition-all duration-150 cursor-pointer ${notif.isRead
+                    ? "bg-white opacity-70 hover:opacity-100"
+                    : "bg-primary-50/30 hover:bg-primary-50/50"
+                    }`}
                   onClick={() => {
-                    if (!notif.isRead) markAsRead(notif._id, { stopPropagation: () => {} });
+                    if (!notif.isRead) markAsRead(notif._id, { stopPropagation: () => { } });
                   }}
                 >
                   <div className="pr-6">

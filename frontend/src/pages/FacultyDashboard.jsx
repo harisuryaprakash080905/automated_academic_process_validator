@@ -3,12 +3,13 @@ import api from "../api";
 
 export default function FacultyDashboard() {
   const [students, setStudents] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [rules, setRules] = useState([]);
   const [selectedStudentUserId, setSelectedStudentUserId] = useState("");
   const [selectedRuleId, setSelectedRuleId] = useState("");
   const [validationResult, setValidationResult] = useState(null);
   const [recordForm, setRecordForm] = useState({
-    studentUserId: "",
+    roleId: "",
     studentId: "",
     attendancePercentage: 0,
     totalCredits: 0,
@@ -25,12 +26,14 @@ export default function FacultyDashboard() {
 
   const loadData = async () => {
     try {
-      const [studentsRes, rulesRes] = await Promise.all([
+      const [studentsRes, rulesRes, usersRes] = await Promise.all([
         api.get("/students"),
-        api.get("/rules")
+        api.get("/rules"),
+        api.get("/students/users")
       ]);
       setStudents(studentsRes.data);
       setRules(rulesRes.data.filter((r) => r.isActive));
+      setAllUsers(usersRes.data);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load faculty data");
     }
@@ -61,13 +64,22 @@ export default function FacultyDashboard() {
   const handleCreateRecord = async (e) => {
     e.preventDefault();
     setError("");
+    
+    // Look up the actual student user ID by the role ID provided
+    const matchedUser = allUsers.find(u => u.roleId && u.roleId.toLowerCase() === recordForm.roleId.trim().toLowerCase());
+    if (!matchedUser) {
+      setError("No student found with the given Role ID.");
+      return;
+    }
+
     try {
       await api.post("/students", {
         ...recordForm,
+        studentUserId: matchedUser._id, // Pass the resolved ID to the backend
         attendancePercentage: Number(recordForm.attendancePercentage),
         totalCredits: Number(recordForm.totalCredits)
       });
-      setRecordForm({ studentUserId: "", studentId: "", attendancePercentage: 0, totalCredits: 0, subjects: [] });
+      setRecordForm({ roleId: "", studentId: "", attendancePercentage: 0, totalCredits: 0, subjects: [] });
       await loadData();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save academic record");
@@ -107,14 +119,14 @@ export default function FacultyDashboard() {
 
       {error && (
         <div className="error-banner">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
           {error}
         </div>
       )}
 
       <section>
         <h2 className="mb-1 text-lg font-bold text-slate-800 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-500"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-500"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
           Student Academic Data
         </h2>
         <p className="mb-5 text-sm text-slate-500">
@@ -127,15 +139,15 @@ export default function FacultyDashboard() {
             <h3 className="text-sm font-bold text-slate-800">📋 Create / Update record</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600">Student (user id)</label>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600">Student Role ID</label>
                 <input
                   className="input"
-                  placeholder="Paste student user id"
-                  value={recordForm.studentUserId}
-                  onChange={(e) => setRecordForm((prev) => ({ ...prev, studentUserId: e.target.value }))}
+                  placeholder="Enter student role ID"
+                  value={recordForm.roleId}
+                  onChange={(e) => setRecordForm((prev) => ({ ...prev, roleId: e.target.value }))}
                   required
                 />
-                <p className="mt-1 text-[10px] text-slate-400">From user registration or admin user list.</p>
+                <p className="mt-1 text-[10px] text-slate-400">The role ID assigned during student registration.</p>
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600">Institutional student ID</label>
@@ -261,26 +273,28 @@ export default function FacultyDashboard() {
             </div>
 
             {/* Existing records */}
-            <div className="card max-h-64 overflow-auto p-5">
-              <h3 className="mb-3 text-sm font-bold text-slate-800">📂 Existing records</h3>
-              {students.length === 0 && (
-                <p className="text-xs text-slate-400">No academic records yet. Create one using the form.</p>
-              )}
-              <ul className="space-y-2">
-                {students.map((rec) => (
-                  <li key={rec._id} className="flex justify-between items-center rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 transition-all hover:border-slate-300">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-800">
-                        {rec.studentUser?.name} <span className="text-slate-400 font-normal">({rec.studentId})</span>
-                      </p>
-                      <p className="text-[11px] text-slate-400">
-                        Attendance {rec.attendancePercentage}% • Credits {rec.totalCredits}
-                      </p>
-                    </div>
-                    <span className="badge-neutral">{rec.subjects?.length || 0} subjects</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="card p-0">
+              <div className="max-h-64 overflow-y-auto p-5">
+                <h3 className="mb-3 text-sm font-bold text-slate-800">📂 Existing records</h3>
+                {students.length === 0 && (
+                  <p className="text-xs text-slate-400">No academic records yet. Create one using the form.</p>
+                )}
+                <ul className="space-y-2">
+                  {students.map((rec) => (
+                    <li key={rec._id} className="flex justify-between items-center rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 transition-all hover:border-slate-300">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">
+                          {rec.studentUser?.name} <span className="text-slate-400 font-normal">({rec.studentId})</span>
+                        </p>
+                        <p className="text-[11px] text-slate-400">
+                          Attendance {rec.attendancePercentage}% • Credits {rec.totalCredits}
+                        </p>
+                      </div>
+                      <span className="badge-neutral">{rec.subjects?.length || 0} subjects</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
