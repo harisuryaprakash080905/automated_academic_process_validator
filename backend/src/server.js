@@ -46,9 +46,9 @@ app.use(errorHandler);
 
 const startServer = async () => {
   await connectDB();
-  app.listen(env.port, () => {
+  app.listen(process.env.PORT, () => {
     // eslint-disable-next-line no-console
-    console.log(`Server running on port ${env.port}`);
+    console.log(`Server running on port ${process.env.PORT}`);
   });
 };
 
