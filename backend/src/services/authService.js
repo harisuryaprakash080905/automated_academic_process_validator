@@ -1,14 +1,20 @@
 import { User, USER_ROLES } from "../models/User.js";
 import { generateToken } from "../utils/generateToken.js";
 
+function createError(message, statusCode) {
+  const err = new Error(message);
+  err.statusCode = statusCode;
+  return err;
+}
+
 export async function registerUser({ name, email, password, role, roleId }) {
   if (!USER_ROLES.includes(role)) {
-    throw new Error("Invalid role");
+    throw createError("Invalid role", 400);
   }
 
   const existing = await User.findOne({ email });
   if (existing) {
-    throw new Error("User already exists");
+    throw createError("User already exists", 409);
   }
 
   const user = await User.create({ name, email, password, role, roleId });
@@ -29,12 +35,12 @@ export async function registerUser({ name, email, password, role, roleId }) {
 export async function loginUser({ email, password }) {
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error("Invalid credentials");
+    throw createError("Invalid credentials", 401);
   }
 
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    throw new Error("Invalid credentials");
+    throw createError("Invalid credentials", 401);
   }
 
   const token = generateToken(user);
