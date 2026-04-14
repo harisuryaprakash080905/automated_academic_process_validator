@@ -31,6 +31,7 @@ if (process.env.NODE_ENV !== "production") {
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
+//hi
 
 app.use("/api/auth", authRoutes);
 app.use("/api/rules", ruleRoutes);
